@@ -1,0 +1,16 @@
+server:
+  port: 9001
+  servlet:
+    context-path: /ComparerEar
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: "http://eureka-server:8761/eureka/"
+    registerWithEureka: true
+    fetchRegistry: true
+    instance:
+      prefer-ip-address: true
+
+
