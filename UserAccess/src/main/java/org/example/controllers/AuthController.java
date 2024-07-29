@@ -29,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
@@ -70,7 +71,10 @@ public class AuthController {
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
     String jwt = jwtUtils.generateJwtToken(userDetails);
-
+    User user = userRepo.findById(userDetails.getId()).get();
+    user.setToken(jwt);
+    user.setTokenCreationDate(LocalDateTime.now());
+    userRepo.save(user);
     List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
 
