@@ -14,7 +14,7 @@ public class FilesToken {
     private Long token;
 
     public FilesToken() {
-
+        ;
     }
 
     public Long getToken() {

@@ -23,7 +23,7 @@ public class ResultatSimulation {
     private Boolean withError;
 
     public enum Status{
-    Validé, Rejeté, Rien
+        VALIDATED, REJECTED, NOTHING
 }
 
     public Boolean getWithError() {

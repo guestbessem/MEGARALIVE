@@ -61,7 +61,7 @@ public class AuthController {
 
   @PostMapping("/signin")
 
-  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+  public ResponseEntity authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
     Authentication authentication = authenticationManager
             .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -85,7 +85,7 @@ public class AuthController {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+  public ResponseEntity registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
     if (authService.existsByUsername(signUpRequest.getUsername())) {
       return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
     }
@@ -108,7 +108,8 @@ public class AuthController {
       strRoles.forEach(role -> {
         switch (role) {
           case "AdminITVermeg" -> {
-            Role adminRole = authService.findByName(ERole.AdminITVermeg)
+            Role adminRole = authService.findByName(ERole. AdminITVermeg
+                    )
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(adminRole);
           }
@@ -133,7 +134,7 @@ public class AuthController {
   }
 
   @PostMapping("/refreshtoken")
-  public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
+  public ResponseEntity refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
     String requestRefreshToken = request.getRefreshToken();
 
     return refreshTokenService.findByToken(requestRefreshToken)
@@ -148,19 +149,19 @@ public class AuthController {
   }
 
   @PostMapping("/signout/{username}")
-  public ResponseEntity<?> logoutUser(@PathVariable String username) {
+  public ResponseEntity logoutUser(@PathVariable String username) {
     User user = authService.findByUsername(username).get();
     refreshTokenService.deleteByUserId(user.getId());
     return ResponseEntity.ok(new MessageResponse("Log out successful!"));
   }
 
   @PostMapping("/forgetpassword")
-  public ResponseEntity<?> forgetPassword(@RequestBody ForgetPassword fp) {
+  public ResponseEntity forgetPassword(@RequestBody ForgetPassword fp) {
     return ResponseEntity.ok(new MessageResponse(authService.forgetPassword(fp.getEmail())));
   }
 
   @PutMapping("/resetpassword")
-  public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest rpr) {
+  public ResponseEntity resetPassword(@RequestBody ResetPasswordRequest rpr) {
     return ResponseEntity.ok(new MessageResponse(authService.resetPassword(rpr.getToken(), rpr.getPassword())));
   }
   @PreAuthorize("hasRole('CLIENT')")

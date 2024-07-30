@@ -76,7 +76,7 @@ public class SimulationController {
         Optional<ResultatSimulation> re=rr.findById(id);
         if(re.isPresent()){
             ResultatSimulation result= re.get();
-            result.setStatus(ResultatSimulation.Status.Validé);
+            result.setStatus(ResultatSimulation.Status.VALIDATED);
             rr.save(result);
         }
         return re.get();
@@ -86,7 +86,7 @@ public class SimulationController {
         Optional<ResultatSimulation> re=rr.findById(id);
         if(re.isPresent()){
             ResultatSimulation result= re.get();
-            result.setStatus(ResultatSimulation.Status.Rejeté);
+            result.setStatus(ResultatSimulation.Status.REJECTED);
             rr.save(result);
         }
         return re.get();

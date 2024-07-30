@@ -2,7 +2,9 @@ package com.example.scripttransformer.entity;
 
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 
 @Entity
 @Table(name="FilesToken")
@@ -12,10 +14,6 @@ public class FilesToken {
     @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="SEQUENCE1")
     @SequenceGenerator(name="SEQUENCE1", sequenceName="SEQUENCE1", allocationSize=1)
     private Long token;
-
-    public FilesToken() {
-
-    }
 
     public Long getToken() {
         return token;

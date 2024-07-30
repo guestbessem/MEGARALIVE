@@ -121,15 +121,16 @@ public class FileService implements IEarFileService{
     @Override
     public FileOutputStream extractFile(ZipInputStream zipIn, String filePath) throws IOException {
         byte[] buffer = new byte[4096];
-        FileOutputStream fos = new FileOutputStream(filePath);
-        int bytesRead;
-        while ((bytesRead = zipIn.read(buffer)) != -1) {
-            fos.write(buffer, 0, bytesRead);
-        }
-        fos.close();
-        return fos;
-    }
 
+        // Use try-with-resources to ensure FileOutputStream is closed properly
+        try (FileOutputStream fos = new FileOutputStream(filePath)) {
+            int bytesRead;
+            while ((bytesRead = zipIn.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
+        } // FileOutputStream is automatically closed here
+        return new FileOutputStream(filePath);
+    }
     @Override
     public void extractEarFile(MultipartFile earFile, String destination) throws IOException {
         InputStream inputStream1 = earFile.getInputStream();
@@ -148,22 +149,25 @@ public class FileService implements IEarFileService{
         }
         return true;
     }
-    public FileOutputStream writeFile(InputStream zipIn, String filePath) throws IOException {
+    public void writeFile(InputStream zipIn, String filePath) throws IOException {
         byte[] buffer = new byte[4096];
-        File file=new File(filePath.substring(0,filePath.lastIndexOf(File.separator)));
-        File newFile=new File(filePath);
-        if(!file.exists()){
-            file.mkdirs();
+        File parentDir = new File(filePath.substring(0, filePath.lastIndexOf(File.separator)));
+        File newFile = new File(filePath);
 
+        // Ensure the parent directory exists
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
         }
-        FileOutputStream fos = new FileOutputStream(newFile);//filepath = le dossier dest+ le nom du fichier
-        int bytesRead;
-        while ((bytesRead = zipIn.read(buffer)) != -1) {
-            fos.write(buffer, 0, bytesRead);
-        }
-        fos.close();
-            return fos;
+
+        // Use try-with-resources to ensure FileOutputStream is closed properly
+        try (FileOutputStream fos = new FileOutputStream(newFile)) {
+            int bytesRead;
+            while ((bytesRead = zipIn.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
+        } // FileOutputStream is automatically closed here
     }
+
 
     @Override
     public ZipInputStream unzipFile(InputStream is, String destDir) throws IOException {
@@ -203,44 +207,48 @@ public class FileService implements IEarFileService{
         return ft.getToken();
     }
     @Override
-    public void decompileOneJar(File jarFile, String targetFolder, String targetParent) throws IOException {
-        if(getExtension(jarFile).equals(".jar")){
-            unzipFile(new FileInputStream(jarFile),targetFolder);
-        }
-        File folder=new File(targetFolder);
-        if(folder.isDirectory()) {
-            for (File file : folder.listFiles()) {
-                if (!file.isDirectory()) {
-                    if (getExtension(file).equals(".jar") || getExtension(file).equals(".war")) {
-                        decompileOneJar(file, targetFolder + File.separator + file.getName(), targetParent);
-                    } else if (getExtension(file).equals(".class")) {
-                        decompileOneClass(file, targetParent);
-                        Files.delete(Path.of(file.toURI()));
-                    } else {
-                        Files.copy(Paths.get(file.getPath()), new File(targetFolder + File.separator + file.getName()).toPath());
-                        Files.delete(Path.of(file.toURI()));
-                    }
-                } else {
-                    decompileOneJar(file, targetFolder + File.separator + file.getName(), targetParent);
-                    // Files.delete(Path.of(file.toURI()));
-                }
-            }
 
-        }  else{
-            if(getExtension(folder).equals(".jar")  || getExtension(folder).equals(".war")){
-                decompileOneJar(folder,targetFolder+File.separator+folder.getName(),targetParent);
-                Files.delete(Path.of(folder.toURI()));
-            } else if(getExtension(folder).equals(".class") ){
-                decompileOneClass(folder,targetParent);
-                Files.delete(Path.of(folder.toURI()));
-            }
-            else{
-                Files.copy(Paths.get(folder.getPath()), new File(targetFolder+File.separator+folder.getName()).toPath());
-                Files.delete(Path.of(folder.toURI()));
-            }
+    public void decompileOneJar(File jarFile, String targetFolder, String targetParent) throws IOException {
+        if (getExtension(jarFile).equals(".jar")) {
+            unzipFile(new FileInputStream(jarFile), targetFolder);
+        }
+
+        File folder = new File(targetFolder);
+        if (folder.isDirectory()) {
+            processFilesInDirectory(folder, targetFolder, targetParent);
+        } else {
+            processFile(folder, targetFolder, targetParent);
         }
     }
 
+    private void processFilesInDirectory(File directory, String targetFolder, String targetParent) throws IOException {
+        for (File file : directory.listFiles()) {
+            processFile(file, targetFolder, targetParent);
+        }
+    }
+
+    private void processFile(File file, String targetFolder, String targetParent) throws IOException {
+        String extension = getExtension(file);
+
+        if (file.isDirectory()) {
+            decompileOneJar(file, targetFolder + File.separator + file.getName(), targetParent);
+        } else {
+            switch (extension) {
+                case ".jar":
+                case ".war":
+                    decompileOneJar(file, targetFolder + File.separator + file.getName(), targetParent);
+                    break;
+                case ".class":
+                    decompileOneClass(file, targetParent);
+                    Files.delete(file.toPath());
+                    break;
+                default:
+                    Files.copy(file.toPath(), new File(targetFolder + File.separator + file.getName()).toPath());
+                    Files.delete(file.toPath());
+                    break;
+            }
+        }
+    }
     @Override
     public void decompileManyJars(String sourceFolder, String targetFolder) throws IOException {
         File sourceFile = new File(sourceFolder);

@@ -198,41 +198,67 @@ public class FileService implements IEarFileService{
     }
     @Override
     public void decompileOneJar(File jarFile, String targetFolder, String targetParent) throws IOException {
-        if(getExtension(jarFile).equals(".jar")){
-            unzipFile(new FileInputStream(jarFile),targetFolder);
+        if (getExtension(jarFile).equals(".jar")) {
+            unzipFile(new FileInputStream(jarFile), targetFolder);
         }
-        File folder=new File(targetFolder);
-        if(folder.isDirectory()) {
-            for (File file : folder.listFiles()) {
-                if (!file.isDirectory()) {
-                    if (getExtension(file).equals(".jar") || getExtension(file).equals(".war")) {
-                        decompileOneJar(file, targetFolder +File.separator+ file.getName(),targetParent);
-                    } else if (getExtension(file).equals(".class")) {
-                        decompileOneClass(file,targetParent);
-                        Files.delete(Path.of(file.toURI()));
-                    } else {
-                        Files.copy(Paths.get(file.getPath()), new File(targetFolder+File.separator+file.getName()).toPath());
-                        Files.delete(Path.of(file.toURI()));
-                    }
-                } else {
-                    decompileOneJar(file, targetFolder +File.separator+ file.getName(),targetParent);
-                    //   Files.delete(Path.of(file.toURI()));
-                }
-            }
-        }  else{
-            if(getExtension(folder).equals(".jar")  || getExtension(folder).equals(".war")){
-                decompileOneJar(folder,targetFolder+File.separator+folder.getName(),targetParent);
-                Files.delete(Path.of(folder.toURI()));
-            } else if(getExtension(folder).equals(".class") ){
-                decompileOneClass(folder,targetParent);
-                Files.delete(Path.of(folder.toURI()));
-            }
-            else{
-                Files.copy(Paths.get(folder.getPath()), new File(targetFolder+File.separator+folder.getName()).toPath());
-                Files.delete(Path.of(folder.toURI()));
+        File folder = new File(targetFolder);
+
+        if (folder.isDirectory()) {
+            processDirectory(folder, targetFolder, targetParent);
+        } else {
+            processFile(folder, targetFolder, targetParent);
+        }
+    }
+
+    private void processDirectory(File directory, String targetFolder, String targetParent) throws IOException {
+        for (File item : directory.listFiles()) {
+            if (!item.isDirectory()) {
+                handleNonDirectoryFile(item, targetFolder, targetParent);
+            } else {
+                decompileOneJar(item, targetFolder + File.separator + item.getName(), targetParent);
             }
         }
     }
+
+    private void handleNonDirectoryFile(File file, String targetFolder, String targetParent) throws IOException {
+        String extension = getExtension(file);
+
+        switch (extension) {
+            case ".jar":
+            case ".war":
+                decompileOneJar(file, targetFolder + File.separator + file.getName(), targetParent);
+                break;
+            case ".class":
+                decompileOneClass(file, targetParent);
+                Files.delete(Path.of(file.toURI()));
+                break;
+            default:
+                Files.copy(file.toPath(), new File(targetFolder + File.separator + file.getName()).toPath());
+                Files.delete(Path.of(file.toURI()));
+                break;
+        }
+    }
+
+    private void processFile(File file, String targetFolder, String targetParent) throws IOException {
+        String extension = getExtension(file);
+
+        switch (extension) {
+            case ".jar":
+            case ".war":
+                decompileOneJar(file, targetFolder + File.separator + file.getName(), targetParent);
+                Files.delete(Path.of(file.toURI()));
+                break;
+            case ".class":
+                decompileOneClass(file, targetParent);
+                Files.delete(Path.of(file.toURI()));
+                break;
+            default:
+                Files.copy(file.toPath(), new File(targetFolder + File.separator + file.getName()).toPath());
+                Files.delete(Path.of(file.toURI()));
+                break;
+        }
+    }
+
 
     @Override
     public void decompileManyJars(String sourceFolder, String targetFolder) throws IOException {

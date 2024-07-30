@@ -15,8 +15,7 @@ import java.util.zip.ZipOutputStream;
 
 @Service
 public class ScriptTransformationService {
-    public static final String separator = System.lineSeparator();
-
+    public static final String LINE_SEPARATOR = System.lineSeparator();
 
     @Autowired
     FileService fs;
@@ -236,9 +235,9 @@ public class ScriptTransformationService {
                             }
                             if (!tableName.isEmpty()) {
                                 if (!newStatement_1.isEmpty())
-                                    write_1.write(newStatement_1 + separator);
+                                    write_1.write(newStatement_1 + LINE_SEPARATOR);
                                 if (!newStatement_2.isEmpty())
-                                    write_2.write(newStatement_2 + separator);
+                                    write_2.write(newStatement_2 + LINE_SEPARATOR);
                             }
                         }
                     }
@@ -266,9 +265,9 @@ public class ScriptTransformationService {
     private static void generateExtra(String fileName, String absolutePath,
                                       String end) {
         if (fileName != null && end != null) {
-            String selectQuery = separator
+            String selectQuery = LINE_SEPARATOR
                     + "select to_char(sysdate,'dd/mm/yyyy hh24:mi:ssss') from dual;"
-                    + separator;
+                    + LINE_SEPARATOR;
             try {
                 File extra = new File(absolutePath + File.separator + fileName);
                 extra.createNewFile();

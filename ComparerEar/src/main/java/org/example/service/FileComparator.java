@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class FileComparator {
@@ -112,21 +113,21 @@ public class FileComparator {
         StringBuilder stringBuilder=new StringBuilder();
         String line1 =null;
         String line2 = null;
-        BufferedReader reader1 = null;
-        BufferedReader reader2 = null;
+
 
         // Vérifie si le fichier 1 existe
         if(file1.exists()){
-            reader1 = new BufferedReader(new FileReader(file1.getAbsolutePath()));
-            line1=reader1.readLine();
+            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1.getAbsolutePath()))) {
+                reader1.readLine(); // This line is read but not used
+            }
         }
 
         // Vérifie si le fichier 2 existe
         if(file2.exists()){
-            reader2 = new BufferedReader(new FileReader(file2.getAbsolutePath()));
-            line2=reader2.readLine();
+            try (BufferedReader reader2 = new BufferedReader(new FileReader(file2.getAbsolutePath()))) {
+                reader2.readLine(); // This line is read but not used
+            }
         }
-
         DiffMatchPatch dmp = new DiffMatchPatch(); //bibliothéque de manipulation de texte
         // La méthode diffMain permet de générer juste les différences
         LinkedList<DiffMatchPatch.Diff> diffs = dmp.diffMain(
@@ -141,18 +142,18 @@ public class FileComparator {
             //ajouter les correspondances
             if (diff.operation == DiffMatchPatch.Operation.EQUAL) {
                 stringBuilder.append("<br>");
-                stringBuilder.append(diff.text.replaceAll("\\n", "<br>"));
+                stringBuilder.append(diff.text.replace("\\n", "<br>"));
             // ajouter les suppressions
             } else if (diff.operation == DiffMatchPatch.Operation.DELETE) {
                 stringBuilder.append("<span class=\"removed\" >");stringBuilder.append("");
-                stringBuilder.append(diff.text.replaceAll("\\n", "<br>"));
+                stringBuilder.append(diff.text.replace("\\n", "<br>"));
                 stringBuilder.append("</span>");
 
                 //ajouter les lignes insérés
             } else if (diff.operation == DiffMatchPatch.Operation.INSERT) {
                 stringBuilder.append("<br>");
                 stringBuilder.append("<span class=\"added\" >");  stringBuilder.append("");
-                stringBuilder.append(diff.text.replaceAll("\\n", "<br>"));
+                stringBuilder.append(diff.text.replace("\\n", "<br>"));
 
                 stringBuilder.append("</span>");
             }
@@ -160,21 +161,28 @@ public class FileComparator {
         return stringBuilder.toString();
     }
     private static Map<String, String> getFilesMap(Path dir) throws IOException {
-        return Files.walk(dir)
-                .filter(p -> !Files.isDirectory(p))
-                .collect(Collectors.toMap(
-                        p -> relativizePath(dir, p),
-                        p -> readFileContent(p)));
+        try (Stream<Path> paths = Files.walk(dir)) {
+            return paths
+                    .filter(p -> !Files.isDirectory(p))
+                    .collect(Collectors.toMap(
+                            p -> relativizePath(dir, p),
+                            p -> readFileContent(p)
+                    ));
+        }
     }
+
     private static String relativizePath(Path baseDir, Path file) {
         return baseDir.relativize(file).toString();//renvoi le chemin relative
     }
     private static Map<String, String> getFilesMapPath(Path dir) throws IOException {
-        return Files.walk(dir)
-                .filter(p -> !Files.isDirectory(p))
-                .collect(Collectors.toMap(
-                        p -> relativizePath(dir, p),
-                        p -> p.toString()));
+        try (Stream<Path> paths = Files.walk(dir)) {
+            return paths
+                    .filter(p -> !Files.isDirectory(p))
+                    .collect(Collectors.toMap(
+                            p -> relativizePath(dir, p),
+                            Path::toString
+                    ));
+        }
     }
     private static String readFileContent(Path file) {
         try {
