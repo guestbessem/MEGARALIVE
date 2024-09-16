@@ -70,7 +70,7 @@ services:
       - spring.cloud.gateway.routes[2].predicates[1]=Path=/Simulation/**
 
   script-transformer:
-    image: bessem1/script-transformer:1.0
+    image: bessem1/scriptediting:1.0
     container_name: script-transformer
     ports:
       - "9003:9003"
@@ -83,7 +83,7 @@ services:
       - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
   comparer-service:
-    image: bessem1/comparer-service:1.0
+    image: bessem1/comparer-ear:1.0
     container_name: comparer-service
     ports:
       - "9001:9001"
