@@ -33,6 +33,11 @@ services:
       - "3307:3306"
     volumes:
       - mysql-megagolive-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   user-access:
     image: bessem1/user-access:1.0
@@ -70,10 +75,12 @@ services:
       - spring.cloud.gateway.routes[2].predicates[1]=Path=/Simulation/**
 
   script-transformer:
-    image: bessem1/scriptediting:1.0
+    image: bessem1/script-transformer:1.1
     container_name: script-transformer
     ports:
       - "9003:9003"
+    depends_on:
+      - mysql-megagolive
     environment:
       - server.port=9003
       - spring.datasource.url=jdbc:mysql://mysql-megagolive:3306/megagolive001?serverTimezone=UTC
