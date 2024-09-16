@@ -1,5 +1,6 @@
 package org.example.security;
 
+import org.example.CorsConfig; // Import the CorsConfig class
 import org.example.security.jwt.AuthEntryPointJwt;
 import org.example.security.jwt.AuthTokenFilter;
 import org.example.security.jwt.JwtUtils;
@@ -26,14 +27,17 @@ public class WebSecurityConfig {
 	private final UserDetailsServiceImpl userDetailsService;
 	private final AuthEntryPointJwt unauthorizedHandler;
 	private final JwtUtils jwtUtils;
+	private final CorsConfig corsConfig; // Inject CorsConfig
 
 	@Autowired
 	public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
 							 AuthEntryPointJwt unauthorizedHandler,
-							 JwtUtils jwtUtils) {
+							 JwtUtils jwtUtils,
+							 CorsConfig corsConfig) { // Add CorsConfig to constructor
 		this.userDetailsService = userDetailsService;
 		this.unauthorizedHandler = unauthorizedHandler;
 		this.jwtUtils = jwtUtils;
+		this.corsConfig = corsConfig;
 	}
 
 	@Bean
@@ -63,6 +67,7 @@ public class WebSecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 				.csrf(csrf -> csrf.disable())
+				.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource())) // Use CorsConfig
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth

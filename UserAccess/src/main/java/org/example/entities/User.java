@@ -39,6 +39,8 @@ public class User {
 	@Email
 	private String email;
 
+	@Size(max = 50)
+	private String cin;
 	@NotBlank
 	@Size(max = 120)
 	private String password;
@@ -51,7 +53,7 @@ public class User {
 	@Column(columnDefinition = "TIMESTAMP")
 	private LocalDateTime tokenCreationDate;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY,cascade =CascadeType.PERSIST)
 	@JoinTable(	name = "user_roles", 
 				joinColumns = @JoinColumn(name = "user_id"), 
 				inverseJoinColumns = @JoinColumn(name = "role_id"))

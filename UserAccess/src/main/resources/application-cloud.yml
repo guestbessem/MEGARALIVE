@@ -1,10 +1,37 @@
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
     registerWithEureka: true
     fetchRegistry: true
   instance:
-
     prefer-ip-address: true
 
+server:
+  port: 9002
+
+spring:
+  application:
+    name: service1
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/backend?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  sleuth:
+    enabled: false  # Disable Zipkin tracing temporarily
+
+app:
+  jwtSecret: appSecretKey
+  jwtExpirationMs: 3600000
+  jwtRefreshExpirationMs: 86400000
