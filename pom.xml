@@ -20,7 +20,6 @@
   <properties>
     <java.version>17</java.version>
     <spring-cloud.version>2023.0.0</spring-cloud.version>
-
   </properties>
 
   <modules>
@@ -82,27 +81,18 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
+
   <distributionManagement>
-
     <repository>
-
       <id>deploymentRepo</id>
-
       <url>http://192.168.66.125:8081/repository/maven-releases/</url>
-
     </repository>
-
     <snapshotRepository>
-
       <id>deploymentRepo</id>
-
       <url>http://192.168.66.125:8081/repository/maven-snapshots/</url>
-
     </snapshotRepository>
-
   </distributionManagement>
 
 </project>
