@@ -39,40 +39,39 @@ public class ZipFolder {
 
     private static void zipFolderRecursive(File folder, String basePath, ZipOutputStream zos) throws IOException {
         File[] files = folder.listFiles();
-
         if (files == null) {
-            return; // If no files, exit early
+            return; // Exit if no files found
         }
 
         for (File file : files) {
             String zipEntryName = basePath + "/" + file.getName();
 
             if (file.isDirectory()) {
-                // Recursively zip sub-folders, adding a trailing slash to the entry name
+                // Add a directory entry and recursively zip its contents
                 zos.putNextEntry(new ZipEntry(zipEntryName + "/"));
                 zos.closeEntry();
                 zipFolderRecursive(file, zipEntryName, zos);
             } else {
                 byte[] buffer = new byte[1024];
-
                 try (FileInputStream fis = new FileInputStream(file)) {
                     // Add zip entry for the file
                     zos.putNextEntry(new ZipEntry(zipEntryName));
 
                     int length;
                     while ((length = fis.read(buffer)) > 0) {
-                        // Write the file content to the zip output stream
                         zos.write(buffer, 0, length);
                     }
 
                     zos.closeEntry();
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    throw e;
+                    // Replace with proper logging in production
+                    // Logger.error("Error zipping file: " + file.getAbsolutePath(), e);
+                    throw e;  // Propagate the exception after logging
                 }
             }
         }
     }
+
 
     private static ArrayList<String> populateFilesList(File dir) throws IOException {
         ArrayList<String> filesListInDir=new ArrayList<String>();
