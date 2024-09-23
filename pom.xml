@@ -1,41 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.example</groupId>
   <artifactId>MegaRunLive_Parent</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.0</version> <!-- Ensure this is the intended version -->
-    <relativePath/> <!-- lookup parent from repository -->
+    <version>3.2.0</version>
+    <!--  Ensure this is the intended version  -->
+    <relativePath/>
+    <!--  lookup parent from repository  -->
   </parent>
-
   <name>Archetype - MegaRunLive_Parent</name>
   <url>http://maven.apache.org</url>
-
   <properties>
     <java.version>17</java.version>
     <spring-cloud.version>2023.0.0</spring-cloud.version>
   </properties>
-
   <modules>
     <module>EurekaServer</module>
     <module>ScriptEditing</module>
     <module>ComparerEar</module>
     <module>UserAccess</module>
     <module>Api-Gateway</module>
-    <!-- Define other modules if any -->
+    <!--  Define other modules if any  -->
   </modules>
-
   <dependencyManagement>
     <dependencies>
-      <!-- Spring Cloud dependencies -->
+      <!--  Spring Cloud dependencies  -->
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies</artifactId>
@@ -43,29 +37,22 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- Lombok dependency -->
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>1.18.24</version> <!-- Use the latest stable version -->
-        <scope>provided</scope>
-      </dependency>
     </dependencies>
   </dependencyManagement>
-
   <build>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>3.2.0</version> <!-- Make sure this matches the parent Spring Boot version -->
+        <version>3.2.0</version>
+        <!--  Make sure this matches the parent Spring Boot version  -->
         <configuration>
           <image>
             <builder>paketobuildpacks/builder-jammy-base:latest</builder>
           </image>
           <excludes>
             <exclude>
-              <groupId>org.project-lombok</groupId>
+              <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
             </exclude>
           </excludes>
@@ -92,7 +79,6 @@
       </plugin>
     </plugins>
   </build>
-
   <distributionManagement>
     <repository>
       <id>deploymentRepo</id>
@@ -103,5 +89,4 @@
       <url>http://192.168.66.125:8081/repository/maven-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
-
 </project>
