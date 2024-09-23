@@ -53,8 +53,10 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.24</version> <!-- specify a version if not already done -->
+            <scope>provided</scope> <!-- if necessary -->
         </dependency>
+
 
         <dependency>
             <groupId>org.springframework.security</groupId>
