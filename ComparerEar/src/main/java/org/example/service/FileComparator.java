@@ -109,55 +109,47 @@ public class FileComparator {
 
         return fromList(folders);
     }
-    public static String getComparisonResultInHTML(File file1 , File file2) throws IOException {
-        StringBuilder stringBuilder=new StringBuilder();
-        String line1 =null;
-        String line2 = null;
+    public static String getComparisonResultInHTML(File file1, File file2) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
 
-
-        // Vérifie si le fichier 1 existe
-        if(file1.exists()){
-            try (BufferedReader reader1 = new BufferedReader(new FileReader(file1.getAbsolutePath()))) {
-                reader1.readLine(); // This line is read but not used
-            }
+        // Vérifie si les fichiers existent
+        if (!file1.exists() || !file2.exists()) {
+            throw new IOException("One or both files do not exist.");
         }
 
-        // Vérifie si le fichier 2 existe
-        if(file2.exists()){
-            try (BufferedReader reader2 = new BufferedReader(new FileReader(file2.getAbsolutePath()))) {
-                reader2.readLine(); // This line is read but not used
-            }
-        }
-        DiffMatchPatch dmp = new DiffMatchPatch(); //bibliothéque de manipulation de texte
-        // La méthode diffMain permet de générer juste les différences
+        // DiffMatchPatch library usage to find differences
+        DiffMatchPatch dmp = new DiffMatchPatch(); // Bibliothèque de manipulation de texte
         LinkedList<DiffMatchPatch.Diff> diffs = dmp.diffMain(
                 readFileContent(Path.of(file1.toURI())),
                 readFileContent(Path.of(file2.toURI())),
                 true
         );
-        dmp.diffCleanupSemantic(diffs);// exemple: diffs = [  Diff(Operation.DELETE, "world!"),......
+        dmp.diffCleanupSemantic(diffs); // Clean up differences
 
-        //Il faut générer une sortie HTML avec ces différences
+        // Generate HTML output with these differences
         for (DiffMatchPatch.Diff diff : diffs) {
-            //ajouter les correspondances
-            if (diff.operation == DiffMatchPatch.Operation.EQUAL) {
-                stringBuilder.append("<br>");
-                stringBuilder.append(diff.text.replace("\\n", "<br>"));
-            // ajouter les suppressions
-            } else if (diff.operation == DiffMatchPatch.Operation.DELETE) {
-                stringBuilder.append("<span class=\"removed\" >");stringBuilder.append("");
-                stringBuilder.append(diff.text.replace("\\n", "<br>"));
-                stringBuilder.append("</span>");
-
-                //ajouter les lignes insérés
-            } else if (diff.operation == DiffMatchPatch.Operation.INSERT) {
-                stringBuilder.append("<br>");
-                stringBuilder.append("<span class=\"added\" >");  stringBuilder.append("");
-                stringBuilder.append(diff.text.replace("\\n", "<br>"));
-
-                stringBuilder.append("</span>");
+            switch (diff.operation) {
+                case EQUAL:
+                    // Add matches
+                    stringBuilder.append("<br>");
+                    stringBuilder.append(diff.text.replace("\\n", "<br>"));
+                    break;
+                case DELETE:
+                    // Add deletions
+                    stringBuilder.append("<span class=\"removed\">");
+                    stringBuilder.append(diff.text.replace("\\n", "<br>"));
+                    stringBuilder.append("</span>");
+                    break;
+                case INSERT:
+                    // Add insertions
+                    stringBuilder.append("<br>");
+                    stringBuilder.append("<span class=\"added\">");
+                    stringBuilder.append(diff.text.replace("\\n", "<br>"));
+                    stringBuilder.append("</span>");
+                    break;
             }
         }
+
         return stringBuilder.toString();
     }
     private static Map<String, String> getFilesMap(Path dir) throws IOException {
