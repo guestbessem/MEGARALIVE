@@ -30,18 +30,34 @@ public class ZipFolder {
 
     public static void zipFolder(String sourceFolder, ZipOutputStream zos) throws IOException {
         File folder = new File(sourceFolder);
+        if (!folder.exists() || !folder.isDirectory()) {
+            throw new IOException("Source folder does not exist or is not a directory.");
+        }
+
+        zipFolderRecursive(folder, folder.getName(), zos);
+    }
+
+    private static void zipFolderRecursive(File folder, String basePath, ZipOutputStream zos) throws IOException {
         File[] files = folder.listFiles();
 
+        if (files == null) {
+            return; // If no files, exit early
+        }
+
         for (File file : files) {
+            String zipEntryName = basePath + "/" + file.getName();
+
             if (file.isDirectory()) {
-                // Recursively zip sub-folders
-                zipFolder(file.getAbsolutePath(), zos);
+                // Recursively zip sub-folders, adding a trailing slash to the entry name
+                zos.putNextEntry(new ZipEntry(zipEntryName + "/"));
+                zos.closeEntry();
+                zipFolderRecursive(file, zipEntryName, zos);
             } else {
                 byte[] buffer = new byte[1024];
 
                 try (FileInputStream fis = new FileInputStream(file)) {
                     // Add zip entry for the file
-                    zos.putNextEntry(new ZipEntry(file.getName()));
+                    zos.putNextEntry(new ZipEntry(zipEntryName));
 
                     int length;
                     while ((length = fis.read(buffer)) > 0) {
