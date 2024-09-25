@@ -69,14 +69,14 @@ services:
       - spring.cloud.gateway.routes[1].uri=http://comparer-service:9001
       - spring.cloud.gateway.routes[1].predicates[0]=Path=/Comparator/**
       - spring.cloud.gateway.routes[1].predicates[1]=Path=/FileCntrl/**
-      - spring.cloud.gateway.routes[2].id=ScriptTransformer
-      - spring.cloud.gateway.routes[2].uri=http://script-transformer:9003
-      - spring.cloud.gateway.routes[2].predicates[0]=Path=/ScriptTransformer/result
+      - spring.cloud.gateway.routes[2].id=ScriptEditing
+      - spring.cloud.gateway.routes[2].uri=http://scriptediting:9003
+      - spring.cloud.gateway.routes[2].predicates[0]=Path=/ScriptEditing/result
       - spring.cloud.gateway.routes[2].predicates[1]=Path=/Simulation/**
 
-  script-transformer:
-    image: bessem1/scriptediting:1.1
-    container_name: script-transformer
+  scriptediting:
+    image: bessem1/scriptediting:1.0
+    container_name: scriptediting
     ports:
       - "9003:9003"
     depends_on:
